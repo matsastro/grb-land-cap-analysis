@@ -20,3 +20,5 @@ The PALEOMAP-derived CSV files used in this study are not included in this
 repository. Users should obtain the underlying paleogeographic reconstructions 
 from the original source and generate the corresponding CSV files in accordance 
 with the data provider's licensing terms.
+
+The code output images have been put together as a chronological video, shown here as Landcaps.gif
