@@ -22,3 +22,6 @@ from the original source and generate the corresponding CSV files in accordance
 with the data provider's licensing terms.
 
 The code output images have been put together as a chronological video, shown here as Landcaps.gif
+
+If you use this code or the animation, please cite:
+M. Sade, A. Tsarfati and O. Birnholtz (2026), "Gamma Ray Bursts Effects on Extinction and Survivability in the Galaxy", arXiv:2603.18250, https://doi.org/10.48550/arXiv.2603.18250
