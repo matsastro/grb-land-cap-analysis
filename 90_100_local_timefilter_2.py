@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Cite as: M. Sade, A. Tsarfati and O. Birnholtz (2026), "Gamma Ray Bursts Effects on
+# Extinction and Survivability in the Galaxy", arXiv:2603.18250
 """
 Compute minimal spherical caps that contain X% of land points (0.9 and 1.0) and
 produce AEQD maps. The AEQD panel is clipped to a circular disk so that the
@@ -28,7 +30,7 @@ from sklearn.neighbors import BallTree
 from PIL import Image
 
 # --- Settings (adjust these) ---
-input_folder = "C:/Users/Matan/OneDrive/Documents/GRB Code/PaleoDEMS"
+input_folder = "PaleoDEMS"
 output_csv = "SurfaceCoverage_90PercentLand.csv"
 output_map_dir = "Maps_90_100_2D"
 os.makedirs(output_map_dir, exist_ok=True)
