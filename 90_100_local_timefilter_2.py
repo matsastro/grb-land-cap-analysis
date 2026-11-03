@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# Cite as: M. Sade, A. Tsarfati and O. Birnholtz (2026), "Gamma Ray Bursts Effects on
-# Extinction and Survivability in the Galaxy", arXiv:2603.18250
 """
 Compute minimal spherical caps that contain X% of land points (0.9 and 1.0) and
 produce AEQD maps. The AEQD panel is clipped to a circular disk so that the
@@ -30,7 +28,7 @@ from sklearn.neighbors import BallTree
 from PIL import Image
 
 # --- Settings (adjust these) ---
-input_folder = "PaleoDEMS"
+input_folder = "C:/Users/Matan/OneDrive/Documents/GRB Code/PaleoDEMS"
 output_csv = "SurfaceCoverage_90PercentLand.csv"
 output_map_dir = "Maps_90_100_2D"
 os.makedirs(output_map_dir, exist_ok=True)
@@ -66,7 +64,8 @@ LEGEND_BELOW = True
 # Only produce output for these times, in Mya. Files whose parsed time is not in
 # this list are skipped before anything is read, so nothing else is computed for
 # them. Set to None to go back to processing every CSV in the folder.
-TARGET_TIMES_MA = None
+
+TARGET_TIMES_MA = None #[445,360,0]
 TIME_MATCH_TOL = 0.5   # Mya; filename times are matched to the list within this tolerance
 
 # Fractions we want to compute (order matters for plotting; 0.9 first)
@@ -364,22 +363,13 @@ def save_aeqd_single_centered(land_lats, land_lons, caps_info, outpath, time_ma=
                 xt, yt = None, None
 
             frac_surface = haversine_cap_area(np.radians(entry['radius_deg']))
-            label_text = f"{frac_surface*100:.1f}%, θ={entry['radius_deg']:.1f}°"
-
-            # offsets scale with the text: at a fixed offset the taller labels
-            # would run into the next circle's label
-            offset_outer = 0.09 * FONT_SCALE
-            if xt is not None and yt is not None and np.isfinite(xt) and np.isfinite(yt):
-                if abs(frac - 1.0) < 1e-9:
-                    txt = ax.text(xt, yt - offset_outer, label_text, color='white', fontsize=10 * FONT_SCALE,
-                                  ha='center', va='top', fontweight='bold', zorder=10)  # outer labels on top
-                    txt.set_path_effects([path_effects.Stroke(linewidth=1.5 * FONT_SCALE, foreground='black'),
-                                          path_effects.Normal()])
-                else:
-                    txt = ax.text(xt, yt + offset_outer, label_text, color='black', fontsize=10 * FONT_SCALE,
-                                  ha='center', va='bottom', fontweight='bold', zorder=10)  # outer labels on top
-                    txt.set_path_effects([path_effects.Stroke(linewidth=1.5 * FONT_SCALE, foreground='white'),
-                                          path_effects.Normal()])
+            # 90% cap on the left, 100% cap on the right; area on top, radius below
+            left = abs(frac - 0.9) < 1e-9
+            for y, va, text in ((0.99, 'top', f"A={frac_surface*100:.1f}%"),
+                                (0.01, 'bottom', f"θ={entry['radius_deg']:.1f}°")):
+                ax.text(0.01 if left else 0.99, y, text, transform=ax.transAxes,
+                        color=color, fontsize=8 * FONT_SCALE, fontweight='bold',
+                        ha='left' if left else 'right', va=va, zorder=10)
 
         # inner reference circles
         hemi_color = "red" if abs(frac - 0.9) < 1e-9 else "orange"
@@ -393,7 +383,7 @@ def save_aeqd_single_centered(land_lats, land_lons, caps_info, outpath, time_ma=
                 xs_h, ys_h = aeqd_project(lon_h, lat_h, cx_lon, cx_lat)
                 finite_h = np.isfinite(xs_h) & np.isfinite(ys_h)
                 if np.count_nonzero(finite_h) > 1:
-                    ax.plot(xs_h[finite_h], ys_h[finite_h], linestyle='--', color=hemi_color, linewidth=1.5 * LINE_SCALE, zorder=4)
+                    ax.plot(xs_h[finite_h], ys_h[finite_h], linestyle='--', color=hemi_color, linewidth=1.0 * LINE_SCALE, zorder=4)
                     try:
                         idxs_h = np.where(finite_h)[0]
                         if abs(frac - 1.0) < 1e-9:
@@ -407,12 +397,12 @@ def save_aeqd_single_centered(land_lats, land_lons, caps_info, outpath, time_ma=
                     offset_hemi = 0.035 * FONT_SCALE
                     if xt_h is not None and yt_h is not None and np.isfinite(xt_h) and np.isfinite(yt_h):
                         if abs(frac - 1.0) < 1e-9:
-                            txt = ax.text(xt_h, yt_h - offset_hemi, "Hem.", color='white', fontsize=9 * FONT_SCALE,
+                            txt = ax.text(xt_h, yt_h - offset_hemi, "Hem.", color=color, fontsize=9 * FONT_SCALE,
                                           ha='center', va='top', fontweight='bold', zorder=7)  # inner labels below outer
                             txt.set_path_effects([path_effects.Stroke(linewidth=1.5 * FONT_SCALE, foreground='black'),
                                                   path_effects.Normal()])
                         else:
-                            txt = ax.text(xt_h, yt_h + offset_hemi, "Hem.", color='black', fontsize=9 * FONT_SCALE,
+                            txt = ax.text(xt_h, yt_h + offset_hemi, "Hem.", color=color, fontsize=9 * FONT_SCALE,
                                           ha='center', va='bottom', fontweight='bold', zorder=7)  # inner labels below outer
                             txt.set_path_effects([path_effects.Stroke(linewidth=1.5 * FONT_SCALE, foreground='white'),
                                                   path_effects.Normal()])
@@ -421,7 +411,7 @@ def save_aeqd_single_centered(land_lats, land_lons, caps_info, outpath, time_ma=
                 xs_i, ys_i = aeqd_project(lon_i, lat_i, cx_lon, cx_lat)
                 finite_i = np.isfinite(xs_i) & np.isfinite(ys_i)
                 if np.count_nonzero(finite_i) > 1:
-                    spread_factor = {30: 1, 60: 2, 120: 4}.get(a, 1)
+                    spread_factor = 2
                     dot_line, = ax.plot(xs_i[finite_i], ys_i[finite_i], linestyle=':', color=color, linewidth=1.0 * LINE_SCALE, zorder=4)
                     dot_line.set_dashes([1, 3 * spread_factor])
                     dot_line.set_dash_capstyle('round')
@@ -438,12 +428,12 @@ def save_aeqd_single_centered(land_lats, land_lons, caps_info, outpath, time_ma=
                     offset_inner = 0.03 * FONT_SCALE
                     if xt_i is not None and yt_i is not None and np.isfinite(xt_i) and np.isfinite(yt_i):
                         if abs(frac - 1.0) < 1e-9:
-                            txt = ax.text(xt_i, yt_i - offset_inner, f"{a}°", color='white', fontsize=9 * FONT_SCALE,
+                            txt = ax.text(xt_i, yt_i - offset_inner, f"{a}°", color=color, fontsize=9 * FONT_SCALE,
                                           ha='center', va='top', zorder=7)  # inner labels below outer
                             txt.set_path_effects([path_effects.Stroke(linewidth=1.5 * FONT_SCALE, foreground='black'),
                                                   path_effects.Normal()])
                         else:
-                            txt = ax.text(xt_i, yt_i + offset_inner, f"{a}°", color='black', fontsize=9 * FONT_SCALE,
+                            txt = ax.text(xt_i, yt_i + offset_inner, f"{a}°", color=color, fontsize=9 * FONT_SCALE,
                                           ha='center', va='bottom', zorder=7)  # inner labels below outer
                             txt.set_path_effects([path_effects.Stroke(linewidth=1.5 * FONT_SCALE, foreground='white'),
                                                   path_effects.Normal()])
