@@ -28,7 +28,7 @@ from sklearn.neighbors import BallTree
 from PIL import Image
 
 # --- Settings (adjust these) ---
-input_folder = "C:/Users/Matan/OneDrive/Documents/GRB Code/PaleoDEMS"
+input_folder = "PaleoDEMS"
 output_csv = "SurfaceCoverage_90PercentLand.csv"
 output_map_dir = "Maps_90_100_2D"
 os.makedirs(output_map_dir, exist_ok=True)
