@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Cite as: M. Sade, A. Tsarfati and O. Birnholtz (2026), "Gamma Ray Bursts Effects on
+# Extinction and Survivability in the Galaxy", arXiv:2603.18250
 """
 Compute minimal spherical caps that contain X% of land points (0.9 and 1.0) and
 produce AEQD maps. The AEQD panel is clipped to a circular disk so that the
